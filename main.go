@@ -7,6 +7,7 @@ import (
 	"writer/errorcorrection"
 	"writer/format"
 	"writer/interfaces"
+	"writer/microqr"
 	"writer/output"
 	"writer/qr"
 )
@@ -15,6 +16,12 @@ var codes = map[string]interfaces.Code{
 	"1-M": &qr.QR{
 		Size:                  21,
 		Capacity:              16,
+		ErrorCorrection:       []uint8{0, 251, 67, 46, 61, 118, 70, 64, 94, 32, 45},
+		ErrorCorrectionMarker: "00",
+	},
+	"M4-M": &microqr.MicroQR{
+		Size:                  17,
+		Capacity:              14,
 		ErrorCorrection:       []uint8{0, 251, 67, 46, 61, 118, 70, 64, 94, 32, 45},
 		ErrorCorrectionMarker: "00",
 	},
