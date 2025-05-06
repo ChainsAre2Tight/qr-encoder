@@ -26,6 +26,7 @@ func (q *QR) WriteDataOntoMatrix(
 	up := true
 
 	matrix := q.initMatrix()
+	// return matrix
 	counter := 0
 
 	// iterate throuth 2-wide columns in reverse order

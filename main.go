@@ -26,7 +26,7 @@ func main() {
 		log.Fatal(fmt.Errorf("main: %s", err))
 	}
 
-	output.MatrixToImage(matrix)
+	output.MatrixToImage(matrix, false)
 }
 
 func Encode(input string) (types.Matrix, error) {
@@ -125,10 +125,10 @@ func Encode(input string) (types.Matrix, error) {
 	log.Println("Error correction codes:")
 	log.Println(fec)
 
-	testFEC := []byte{
-		165, 36, 212, 193, 237, 54, 199, 135, 44, 85,
-	}
-	log.Println(testFEC)
+	// testFEC := []byte{
+	// 	165, 36, 212, 193, 237, 54, 199, 135, 44, 85,
+	// }
+	// log.Println(testFEC)
 
 	// convert data and fec to bit stream
 	bitStream := make([]bool, 8*(len(data)+len(fec)))
@@ -150,20 +150,29 @@ func Encode(input string) (types.Matrix, error) {
 		}
 	}
 
-	// log.Println(bitStream)
+	data = make([]byte, len(bitStream)/8)
+	for i := range bitStream {
+		pos = i / 8
+		if bitStream[i] {
+			data[pos] += 1 << (7 - i%8)
+		}
+	}
+
+	log.Println("bitstream\n", data)
 
 	// place data onto matrix
 	matrix := code.WriteDataOntoMatrix(
 		bitStream,
 		func(x int) bool { return x == 6 },
 		func(x, y int) bool {
-			return x <= 8 && y <= 8 || x <= 8 && y >= code.Size-8 || x >= code.Size-8 && y <= 8
+			return x <= 8 && y <= 8 || x <= 8 && y >= code.Size-8 || x >= code.Size-8 && y <= 8 || y == 6
 		},
 	)
 
 	// evaluate masking patterns
-	mask := "010"
+	mask := "101"
 	result := masking.ApplyMask(matrix, masking.Masks[mask])
+	// result := matrix
 
 	// place format data and its error corrections
 	engraving.PlaceFinderPatterns(result, code)
