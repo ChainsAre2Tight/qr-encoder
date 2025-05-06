@@ -32,5 +32,6 @@ func GaloisDiv(n, d uint8) uint8 {
 		panic("division by zero")
 	}
 
-	return tables.GaloisFieldExponent[tables.GaloisFieldLogarithm[n]-tables.GaloisFieldLogarithm[d]]
+	res := tables.GaloisFieldExponent[tables.GaloisFieldLogarithm[n]-tables.GaloisFieldLogarithm[d]]
+	return res
 }

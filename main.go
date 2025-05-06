@@ -89,19 +89,19 @@ func Encode(input string) (types.Matrix, error) {
 	data := make([]byte, code.Capacity)
 	pos := 0
 
-	// for i := range binaryData {
-	// 	pos = i / 8
-	// 	if binaryData[i] {
-	// 		data[pos] += 1 << (7 - i%8)
-	// 	}
-	// }
+	for i := range binaryData {
+		pos = i / 8
+		if binaryData[i] {
+			data[pos] += 1 << (7 - i%8)
+		}
+	}
 
-	asd := []byte{
-		16, 32, 12, 86, 97, 128,
-	}
-	for pos = range asd {
-		data[pos] = asd[pos]
-	}
+	// asd := []byte{
+	// 	16, 32, 12, 86, 97, 128,
+	// }
+	// for pos = range asd {
+	// 	data[pos] = asd[pos]
+	// }
 
 	if pos < code.Capacity-1 {
 		pos++

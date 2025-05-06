@@ -7,6 +7,11 @@ import (
 )
 
 func GenErrorCorrection(b []byte, code *qr.QR) []byte {
+	// lenWords := len(b)
+	// for range len(code.ErrorCorrection) {
+	// 	b = append(b, 0)
+	// }
+
 	divisor := make([]uint8, len(code.ErrorCorrection))
 	for i, power := range code.ErrorCorrection {
 		divisor[i] = tables.GaloisFieldExponent[power]
