@@ -2,18 +2,18 @@ package errorcorrection
 
 import (
 	"writer/galois"
-	"writer/qr"
+	"writer/interfaces"
 	"writer/tables"
 )
 
-func GenErrorCorrection(b []byte, code *qr.QR) []byte {
+func GenErrorCorrection(b []byte, code interfaces.Code) []byte {
 	// lenWords := len(b)
 	// for range len(code.ErrorCorrection) {
 	// 	b = append(b, 0)
 	// }
 
-	divisor := make([]uint8, len(code.ErrorCorrection))
-	for i, power := range code.ErrorCorrection {
+	divisor := make([]uint8, len(code.GetErrorCorrectionPolynomial()))
+	for i, power := range code.GetErrorCorrectionPolynomial() {
 		divisor[i] = tables.GaloisFieldExponent[power]
 	}
 
