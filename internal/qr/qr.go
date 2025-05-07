@@ -1,7 +1,9 @@
 package qr
 
 import (
-	"fmt"
+	"qr-encoder/internal/engraving"
+	"qr-encoder/internal/errorcorrection"
+	"qr-encoder/internal/masking"
 	"qr-encoder/internal/types"
 )
 
@@ -38,21 +40,54 @@ func (q *QR) GetCapacity() int {
 }
 
 func (q *QR) WriteBitStream(bitStream []bool) (types.Matrix, error) {
-	fail := func(err error) (types.Matrix, error) {
-		return nil, fmt.Errorf("qr.WriteBitStream: %s", err)
+
+	matrix := q.InitMatrix()
+
+	// place data onto matrix
+	engraving.WriteDataOntoMatrix(
+		matrix,
+		q.Size,
+		q.Size,
+		bitStream,
+		func(x int) bool { return x == 6 },
+		func(x, y int) bool {
+			return x <= 8 && y <= 8 || x <= 8 && y >= q.Size-8 || x >= q.Size-8 && y <= 8 || y == 6
+		},
+	)
+
+	// evaluate masking patterns
+	maskedMatrixes := make(map[string]types.Matrix)
+	for mask, m := range masking.Masks {
+		maskedMatrixes[mask] = masking.ApplyMask(matrix, m)
+
+		// finder patterns
+		engraving.WriteSubmatrix(maskedMatrixes[mask], engraving.FinderPatternBackground, 0, 0)
+		engraving.WriteSubmatrix(maskedMatrixes[mask], engraving.FinderPattern, 0, 0)
+
+		engraving.WriteSubmatrix(maskedMatrixes[mask], engraving.FinderPatternBackground, q.Size-8, 0)
+		engraving.WriteSubmatrix(maskedMatrixes[mask], engraving.FinderPattern, q.Size-7, 0)
+
+		engraving.WriteSubmatrix(maskedMatrixes[mask], engraving.FinderPatternBackground, 0, q.Size-8)
+		engraving.WriteSubmatrix(maskedMatrixes[mask], engraving.FinderPattern, 0, q.Size-7)
+
+		formatData := errorcorrection.ComputeFormatErrorCorrection(
+			q.ErrorCorrectionMarker,
+			mask,
+			errorcorrection.FormatBCHPolynomial,
+			errorcorrection.FormatMask,
+		)
+		qrPlaceFormatData(maskedMatrixes[mask], q, formatData)
+
+		// timing pattern
+		for i := 8; i < q.Size-8; i += 2 {
+			maskedMatrixes[mask][6][i] = true
+			maskedMatrixes[mask][6][i+1] = false
+			maskedMatrixes[mask][i][6] = true
+			maskedMatrixes[mask][i+1][6] = false
+		}
 	}
 
-	dataEngraver := &QRDataEngraver{Q: q}
-	matrix, mask, err := dataEngraver.Write(bitStream)
-
-	if err != nil {
-		return fail(err)
-	}
-
-	formatEngraver := &QRMetadataEngraver{q: q}
-	formatEngraver.Write(matrix, mask)
-
-	return matrix, nil
+	return maskedMatrixes["011"], nil
 }
 
 func (q *QR) GetFormatData(format string) (bool, *types.FormatData) {

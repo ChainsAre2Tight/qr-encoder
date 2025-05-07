@@ -14,11 +14,3 @@ type Code interface {
 type Format interface {
 	Encode(data string, format types.FormatData) ([]byte, error)
 }
-
-type DataEngraver interface {
-	Write(bitStream []bool) (types.Matrix, string, error)
-}
-
-type MetadataEngraver interface {
-	Write(matrix types.Matrix, mask string)
-}

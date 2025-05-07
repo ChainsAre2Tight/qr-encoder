@@ -1,86 +1,8 @@
 package qr
 
 import (
-	"fmt"
-	"qr-encoder/internal/engraving"
-	"qr-encoder/internal/errorcorrection"
-	"qr-encoder/internal/masking"
 	"qr-encoder/internal/types"
 )
-
-type QRDataEngraver struct {
-	Q *QR
-}
-
-func (e *QRDataEngraver) Write(bitStream []bool) (types.Matrix, string, error) {
-	fail := func(err error) (types.Matrix, string, error) {
-		return nil, "", fmt.Errorf("qrDataEngraver.Write: %s", err)
-	}
-
-	matrix := e.Q.InitMatrix()
-
-	// place data onto matrix
-	engraving.WriteDataOntoMatrix(
-		matrix,
-		e.Q.Size,
-		e.Q.Size,
-		bitStream,
-		func(x int) bool { return x == 6 },
-		func(x, y int) bool {
-			return x <= 8 && y <= 8 || x <= 8 && y >= e.Q.Size-8 || x >= e.Q.Size-8 && y <= 8 || y == 6
-		},
-	)
-
-	// TODO: evaluate masking patterns
-	mask := "101"
-	m, ok := masking.Masks[mask]
-	if !ok {
-		fail(fmt.Errorf("mask %s is not found", mask))
-	}
-
-	result := masking.ApplyMask(matrix, m)
-
-	return result, mask, nil
-}
-
-type QRMetadataEngraver struct {
-	q *QR
-}
-
-func (e *QRMetadataEngraver) Write(matrix types.Matrix, mask string) error {
-
-	if len(mask) != 3 {
-		return fmt.Errorf("invalid mask length: %d (%s)", len(mask), mask)
-	}
-
-	// finder patterns
-	engraving.WriteSubmatrix(matrix, engraving.FinderPatternBackground, 0, 0)
-	engraving.WriteSubmatrix(matrix, engraving.FinderPattern, 0, 0)
-
-	engraving.WriteSubmatrix(matrix, engraving.FinderPatternBackground, e.q.Size-8, 0)
-	engraving.WriteSubmatrix(matrix, engraving.FinderPattern, e.q.Size-7, 0)
-
-	engraving.WriteSubmatrix(matrix, engraving.FinderPatternBackground, 0, e.q.Size-8)
-	engraving.WriteSubmatrix(matrix, engraving.FinderPattern, 0, e.q.Size-7)
-
-	formatData := errorcorrection.ComputeFormatErrorCorrection(
-		e.q.ErrorCorrectionMarker,
-		mask,
-		errorcorrection.FormatBCHPolynomial,
-		errorcorrection.FormatMask,
-	)
-	qrPlaceFormatData(matrix, e.q, formatData)
-
-	// timing pattern
-	for i := 8; i < e.q.Size-8; i += 2 {
-		matrix[6][i] = true
-		matrix[6][i+1] = false
-		matrix[i][6] = true
-		matrix[i+1][6] = false
-	}
-
-	return nil
-}
 
 func qrPlaceFormatData(matrix types.Matrix, code *QR, formatData []bool) {
 	formatPositionsUpperLeft := [15][2]int{
