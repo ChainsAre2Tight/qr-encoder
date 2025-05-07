@@ -7,6 +7,8 @@ import (
 	"log"
 	"os"
 	"qr-encoder/internal/types"
+
+	"github.com/nfnt/resize"
 )
 
 func MatrixToImage(matrix types.Matrix, include_border bool) {
@@ -37,11 +39,13 @@ func MatrixToImage(matrix types.Matrix, include_border bool) {
 		}
 	}
 
+	newImage := resize.Resize(500, 500, img, resize.NearestNeighbor)
+
 	file, err := os.Create("output.png")
 
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer file.Close()
-	png.Encode(file, img)
+	png.Encode(file, newImage)
 }

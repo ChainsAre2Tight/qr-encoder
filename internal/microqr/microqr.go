@@ -2,6 +2,7 @@ package microqr
 
 import (
 	"fmt"
+	"log"
 	"qr-encoder/internal/engraving"
 	"qr-encoder/internal/errorcorrection"
 	"qr-encoder/internal/masking"
@@ -51,7 +52,7 @@ func (m *MicroQR) WriteBitStream(bitStream []bool) (types.Matrix, error) {
 	)
 
 	// TODO: evaluate masking patterns
-	mask := "00"
+	mask := "01"
 	mk, ok := masking.MicroQRMasks[mask]
 	if !ok {
 		return fail(fmt.Errorf("mask %s is not found", mask))
@@ -78,6 +79,8 @@ func (m *MicroQR) WriteBitStream(bitStream []bool) (types.Matrix, error) {
 		errorcorrection.FormatBCHPolynomial,
 		errorcorrection.MicroQRMask,
 	)
+
+	log.Println(formatData)
 
 	// place format data
 	for i, pos := range microQRformatPositions {

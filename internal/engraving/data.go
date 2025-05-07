@@ -58,6 +58,7 @@ func WriteDataOntoMatrix(
 					return
 				}
 				matrix[x][y] = bitstream[counter]
+				// log.Println(x, y, bitstream[counter])
 				counter++
 			}
 		}

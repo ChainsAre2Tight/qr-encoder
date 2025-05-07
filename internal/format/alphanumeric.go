@@ -49,11 +49,17 @@ func (f *Alphanumeric) Encode(data string) ([]byte, error) {
 
 	fmt.Println("binary string", binaryString)
 
-	cci := fmt.Sprintf("%0.9b", length)
+	// cci := fmt.Sprintf("%0.9b", length)
+	cci := fmt.Sprintf("%0.3b", length)
 
 	fmt.Println("cci", cci)
-	binaryString = "0010" + cci + binaryString
-	binaryString = binaryString + strings.Repeat("0", 8+8-len(binaryString)%8)
+
+	// binaryString = "0010" + cci + binaryString
+	binaryString = "1" + cci + binaryString + "00000"
+
+	binaryString = binaryString + strings.Repeat("0", 8-len(binaryString)%8)
+
+	// binaryString = "0100000000011000101011001100001100000000"
 
 	fmt.Println(binaryString)
 	fmt.Println(len(binaryString))

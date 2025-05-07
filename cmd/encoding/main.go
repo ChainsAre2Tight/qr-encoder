@@ -13,6 +13,7 @@ import (
 )
 
 var erorrcorrectionpolynomials = map[string][]uint8{
+	"5":  {0, 113, 164, 166, 119, 10},
 	"10": {0, 251, 67, 46, 61, 118, 70, 64, 94, 32, 45},
 }
 
@@ -23,11 +24,17 @@ var codes = map[string]interfaces.Code{
 		ErrorCorrection:       erorrcorrectionpolynomials["10"],
 		ErrorCorrectionMarker: "00",
 	},
-	"M4-M": &microqr.MicroQR{
-		Size:                  17,
-		Capacity:              14,
-		ErrorCorrection:       erorrcorrectionpolynomials["10"],
-		ErrorCorrectionMarker: "110",
+	// "M4-M": &microqr.MicroQR{
+	// 	Size:                  17,
+	// 	Capacity:              14,
+	// 	ErrorCorrection:       erorrcorrectionpolynomials["10"],
+	// 	ErrorCorrectionMarker: "110",
+	// },
+	"M2-L": &microqr.MicroQR{
+		Size:                  13,
+		Capacity:              5,
+		ErrorCorrection:       erorrcorrectionpolynomials["5"],
+		ErrorCorrectionMarker: "001",
 	},
 }
 
@@ -84,7 +91,7 @@ func main() {
 		fail(err)
 	}
 
-	output.MatrixToImage(matrix, false)
+	output.MatrixToImage(matrix, true)
 }
 
 func PrepForEngraving(data []byte, code interfaces.Code) ([]bool, error) {
