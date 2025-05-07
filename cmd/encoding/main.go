@@ -32,7 +32,8 @@ var codes = map[string]interfaces.Code{
 }
 
 var formats = map[string]interfaces.Format{
-	"byte": &format.ByteFormat{},
+	"byte":         &format.ByteFormat{},
+	"alphanumeric": &format.Alphanumeric{},
 }
 
 func main() {
