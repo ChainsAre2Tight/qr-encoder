@@ -1,6 +1,6 @@
 package microqr
 
-import "qr-encoder/types"
+import "qr-encoder/internal/types"
 
 type MicroQR struct {
 	Size                  int

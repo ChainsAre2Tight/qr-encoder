@@ -2,8 +2,8 @@ package errorcorrection_test
 
 import (
 	"fmt"
-	"qr-encoder/errorcorrection"
-	"qr-encoder/qr"
+	"qr-encoder/internal/errorcorrection"
+	"qr-encoder/internal/qr"
 	"reflect"
 	"testing"
 )

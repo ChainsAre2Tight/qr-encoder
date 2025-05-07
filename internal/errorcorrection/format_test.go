@@ -2,7 +2,7 @@ package errorcorrection_test
 
 import (
 	"fmt"
-	"qr-encoder/errorcorrection"
+	"qr-encoder/internal/errorcorrection"
 	"testing"
 )
 

@@ -1,7 +1,7 @@
 package engraving
 
 import (
-	"qr-encoder/types"
+	"qr-encoder/internal/types"
 )
 
 // func PlaceFinderPatterns(matrix types.Matrix, code *qr.QR) {

@@ -1,6 +1,6 @@
 package interfaces
 
-import "qr-encoder/types"
+import "qr-encoder/internal/types"
 
 type Code interface {
 	X() int

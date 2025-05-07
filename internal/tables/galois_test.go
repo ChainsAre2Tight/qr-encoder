@@ -2,7 +2,7 @@ package tables_test
 
 import (
 	"fmt"
-	"qr-encoder/tables"
+	"qr-encoder/internal/tables"
 	"testing"
 )
 

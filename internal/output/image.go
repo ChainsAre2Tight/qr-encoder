@@ -6,7 +6,7 @@ import (
 	"image/png"
 	"log"
 	"os"
-	"qr-encoder/types"
+	"qr-encoder/internal/types"
 )
 
 func MatrixToImage(matrix types.Matrix, include_border bool) {

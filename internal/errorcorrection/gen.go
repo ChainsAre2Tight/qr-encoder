@@ -1,9 +1,9 @@
 package errorcorrection
 
 import (
-	"qr-encoder/galois"
-	"qr-encoder/interfaces"
-	"qr-encoder/tables"
+	"qr-encoder/internal/galois"
+	"qr-encoder/internal/interfaces"
+	"qr-encoder/internal/tables"
 )
 
 func GenErrorCorrection(b []byte, code interfaces.Code) []byte {

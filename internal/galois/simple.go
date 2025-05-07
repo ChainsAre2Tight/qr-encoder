@@ -1,6 +1,6 @@
 package galois
 
-import "qr-encoder/tables"
+import "qr-encoder/internal/tables"
 
 func GaloisMul(a, b uint8) uint8 {
 	// fmt.Println(a, b,
