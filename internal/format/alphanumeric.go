@@ -2,6 +2,7 @@ package format
 
 import (
 	"fmt"
+	"log"
 	"qr-encoder/internal/types"
 	"strings"
 )
@@ -24,39 +25,43 @@ func (f *Alphanumeric) Encode(data string, format types.FormatData) ([]byte, err
 		return n, nil
 	}
 
+	log.Println("converting to alphanumeric...")
+
 	for i := 0; i < length/2; i++ {
-		first, err := conv(rune(data[2*i]))
+		r1 := rune(data[2*i])
+		first, err := conv(r1)
 		if err != nil {
 			return nil, err
 		}
-		second, err := conv(rune(data[2*i+1]))
+		r2 := rune(data[2*i+1])
+		second, err := conv(r2)
 		if err != nil {
 			return nil, err
 		}
 		combo := first*45 + second
 		str := fmt.Sprintf("%0.11b", combo)
-		fmt.Println(str)
+		log.Printf("%s | %s ---> %s", string(r1), string(r2), str)
 		binaryString = binaryString + str
 	}
 	if length%2 == 1 {
-		first, err := conv(rune(data[length-1]))
+		r := rune(data[length-1])
+		first, err := conv(r)
 		if err != nil {
 			return nil, err
 		}
 		str := fmt.Sprintf("%0.5b", first)
-		fmt.Println(str)
+		log.Printf("%s ---> %s", string(r), str)
 		binaryString = binaryString + str
 	}
 
-	fmt.Println("binary string", binaryString)
 	cci := DecimalToBinaryString(length, format.CCI)
-	fmt.Println("cci", cci)
+	log.Println("cci", cci)
 
+	log.Printf("Resulting string: %s %s %s %s", format.Indicator, cci, binaryString, format.Separator)
 	binaryString = format.Indicator + cci + binaryString + format.Separator
-	binaryString = binaryString + strings.Repeat("0", 8-len(binaryString)%8)
 
-	fmt.Println(binaryString)
-	fmt.Println(len(binaryString))
+	padding := strings.Repeat("0", 8-len(binaryString)%8)
+	binaryString = binaryString + padding
 
 	result := make([]byte, len(binaryString)/8)
 	pos := 0

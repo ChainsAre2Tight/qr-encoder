@@ -30,6 +30,7 @@ func (f *ByteFormat) Encode(data string, format types.FormatData) ([]byte, error
 	cci := DecimalToBinaryString(length, format.CCI)
 
 	// add mode indicator and separator
+	log.Printf("Resulting string: %s %s %s %s", format.Indicator, cci, binaryString, format.Separator)
 	binaryString = format.Indicator + cci + binaryString + format.Separator
 	binaryString = binaryString + strings.Repeat("0", 8-len(binaryString)%8)
 
