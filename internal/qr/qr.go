@@ -1,6 +1,7 @@
 package qr
 
 import (
+	"log"
 	"qr-encoder/internal/engraving"
 	"qr-encoder/internal/errorcorrection"
 	"qr-encoder/internal/masking"
@@ -39,6 +40,11 @@ func (q *QR) GetCapacity() int {
 	return q.Capacity
 }
 
+type mm struct {
+	m     types.Matrix
+	score int
+}
+
 func (q *QR) WriteBitStream(bitStream []bool) (types.Matrix, error) {
 
 	matrix := q.InitMatrix()
@@ -56,19 +62,24 @@ func (q *QR) WriteBitStream(bitStream []bool) (types.Matrix, error) {
 	)
 
 	// evaluate masking patterns
-	maskedMatrixes := make(map[string]types.Matrix)
+	log.Println("Evaluating mask patterns...")
+	maskedMatrixes := make(map[string]*mm)
 	for mask, m := range masking.Masks {
-		maskedMatrixes[mask] = masking.ApplyMask(matrix, m)
+		matrix := mm{
+			m:     masking.ApplyMask(matrix, m),
+			score: 0,
+		}
+		maskedMatrixes[mask] = &matrix
 
 		// finder patterns
-		engraving.WriteSubmatrix(maskedMatrixes[mask], engraving.FinderPatternBackground, 0, 0)
-		engraving.WriteSubmatrix(maskedMatrixes[mask], engraving.FinderPattern, 0, 0)
+		engraving.WriteSubmatrix(matrix.m, engraving.FinderPatternBackground, 0, 0)
+		engraving.WriteSubmatrix(matrix.m, engraving.FinderPattern, 0, 0)
 
-		engraving.WriteSubmatrix(maskedMatrixes[mask], engraving.FinderPatternBackground, q.Size-8, 0)
-		engraving.WriteSubmatrix(maskedMatrixes[mask], engraving.FinderPattern, q.Size-7, 0)
+		engraving.WriteSubmatrix(matrix.m, engraving.FinderPatternBackground, q.Size-8, 0)
+		engraving.WriteSubmatrix(matrix.m, engraving.FinderPattern, q.Size-7, 0)
 
-		engraving.WriteSubmatrix(maskedMatrixes[mask], engraving.FinderPatternBackground, 0, q.Size-8)
-		engraving.WriteSubmatrix(maskedMatrixes[mask], engraving.FinderPattern, 0, q.Size-7)
+		engraving.WriteSubmatrix(matrix.m, engraving.FinderPatternBackground, 0, q.Size-8)
+		engraving.WriteSubmatrix(matrix.m, engraving.FinderPattern, 0, q.Size-7)
 
 		formatData := errorcorrection.ComputeFormatErrorCorrection(
 			q.ErrorCorrectionMarker,
@@ -76,18 +87,34 @@ func (q *QR) WriteBitStream(bitStream []bool) (types.Matrix, error) {
 			errorcorrection.FormatBCHPolynomial,
 			errorcorrection.FormatMask,
 		)
-		qrPlaceFormatData(maskedMatrixes[mask], q, formatData)
+		qrPlaceFormatData(matrix.m, q, formatData)
 
 		// timing pattern
 		for i := 8; i < q.Size-8; i += 2 {
-			maskedMatrixes[mask][6][i] = true
-			maskedMatrixes[mask][6][i+1] = false
-			maskedMatrixes[mask][i][6] = true
-			maskedMatrixes[mask][i+1][6] = false
+			matrix.m[6][i] = true
+			matrix.m[6][i+1] = false
+			matrix.m[i][6] = true
+			matrix.m[i+1][6] = false
+		}
+
+		matrix.score = evaluateSymbol(matrix.m)
+		log.Printf("Mask: %s, score: %d", mask, matrix.score)
+	}
+
+	var min = 9999999
+	var result types.Matrix
+	var resultMask string
+	for mask, matrix := range maskedMatrixes {
+		if matrix.score < min {
+			min = matrix.score
+			result = matrix.m
+			resultMask = mask
 		}
 	}
 
-	return maskedMatrixes["011"], nil
+	log.Printf("Selected mask: %s", resultMask)
+
+	return result, nil
 }
 
 func (q *QR) GetFormatData(format string) (bool, *types.FormatData) {
