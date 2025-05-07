@@ -23,7 +23,7 @@ var codes = map[string]interfaces.Code{
 		Size:                  17,
 		Capacity:              14,
 		ErrorCorrection:       []uint8{0, 251, 67, 46, 61, 118, 70, 64, 94, 32, 45},
-		ErrorCorrectionMarker: "00",
+		ErrorCorrectionMarker: "110",
 	},
 }
 
@@ -51,7 +51,7 @@ func main() {
 		fail(err)
 	}
 
-	code := "1-M"
+	code := "M4-M"
 	c := codes[code]
 	log.Println("Selected code type:", code)
 	log.Println(c)

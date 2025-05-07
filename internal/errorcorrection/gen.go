@@ -22,14 +22,19 @@ func GenErrorCorrection(b []byte, code interfaces.Code) []byte {
 	return result
 }
 
-var formatBCHPolynomial = []bool{true, false, true, false, false, true, true, false, true, true, true}
-var formatMask = []bool{
+var FormatBCHPolynomial = []bool{true, false, true, false, false, true, true, false, true, true, true}
+var FormatMask = []bool{
 	true, false, true, false, true,
 	false, false, false, false, false,
 	true, false, false, true, false,
 }
+var MicroQRMask = []bool{
+	true, false, false, false, true,
+	false, false, false, true, false,
+	false, false, true, false, true,
+}
 
-func ComputeFormatErrorCorrection(level, mask string) []bool {
+func ComputeFormatErrorCorrection(level, mask string, polynomial []bool, formatMask []bool) []bool {
 	combined := level + mask
 
 	result := make([]bool, 15)
@@ -37,7 +42,7 @@ func ComputeFormatErrorCorrection(level, mask string) []bool {
 		result[i] = combined[i] == '1'
 	}
 
-	correction := galois.BinaryDivRemainder(result, formatBCHPolynomial)
+	correction := galois.BinaryDivRemainder(result, polynomial)
 	for i := 5; i < 15; i++ {
 		result[i] = correction[i]
 	}

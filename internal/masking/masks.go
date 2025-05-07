@@ -13,6 +13,13 @@ var Masks = map[string]types.Mask{
 	"111": func(x, y int) bool { return ((x+y)%2+(x*y)%3)%2 == 0 },
 }
 
+var MicroQRMasks = map[string]types.Mask{
+	"00": func(x, y int) bool { return y%2 == 0 },
+	"01": func(x, y int) bool { return (y/2+x/3)%2 == 0 },
+	"10": func(x, y int) bool { return ((x*y)%2+(x*y)%3)%2 == 0 },
+	"11": func(x, y int) bool { return ((x+y)%2+(x*y)%3)%2 == 0 },
+}
+
 // Returns a new, masked matrix
 func ApplyMask(matrix types.Matrix, mask types.Mask) types.Matrix {
 	result := make([][]bool, len(matrix))

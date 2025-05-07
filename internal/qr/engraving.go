@@ -63,7 +63,12 @@ func (e *QRMetadataEngraver) Write(matrix types.Matrix, mask string) error {
 	engraving.WriteSubmatrix(matrix, engraving.FinderPatternBackground, 0, e.q.Size-8)
 	engraving.WriteSubmatrix(matrix, engraving.FinderPattern, 0, e.q.Size-7)
 
-	formatData := errorcorrection.ComputeFormatErrorCorrection(e.q.ErrorCorrectionMarker, mask)
+	formatData := errorcorrection.ComputeFormatErrorCorrection(
+		e.q.ErrorCorrectionMarker,
+		mask,
+		errorcorrection.FormatBCHPolynomial,
+		errorcorrection.FormatMask,
+	)
 	qrPlaceFormatData(matrix, e.q, formatData)
 
 	// timing pattern
