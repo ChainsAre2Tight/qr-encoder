@@ -30,14 +30,31 @@ var codes = map[string]interfaces.Code{
 				CCI:       8,
 				Separator: "0000",
 			},
+			"alphanumeric": {
+				Indicator: "0010",
+				CCI:       9,
+				Separator: "0000",
+			},
 		},
 	},
-	// "M4-M": &microqr.MicroQR{
-	// 	Size:                  17,
-	// 	Capacity:              14,
-	// 	ErrorCorrection:       erorrcorrectionpolynomials["10"],
-	// 	ErrorCorrectionMarker: "110",
-	// },
+	"M4-M": &microqr.MicroQR{
+		Size:                  17,
+		Capacity:              14,
+		ErrorCorrection:       erorrcorrectionpolynomials["10"],
+		ErrorCorrectionMarker: "110",
+		Formats: map[string]types.FormatData{
+			"byte": {
+				Indicator: "010",
+				CCI:       5,
+				Separator: "000000000",
+			},
+			"alphanumeric": {
+				Indicator: "001",
+				CCI:       5,
+				Separator: "000000000",
+			},
+		},
+	},
 	"M2-L": &microqr.MicroQR{
 		Size:                  13,
 		Capacity:              5,

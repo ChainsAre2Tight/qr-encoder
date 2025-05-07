@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"qr-encoder/internal/types"
+	"strings"
 
 	"golang.org/x/text/encoding/charmap"
 )
@@ -16,35 +17,28 @@ func (f *ByteFormat) Encode(data string, format types.FormatData) ([]byte, error
 	if err != nil {
 		return nil, fmt.Errorf("ByteFormat.Encode: %s", err)
 	}
+	length := len(encodedBytes)
 	log.Println("Encoded data is")
 	log.Println(encodedBytes)
 
-	// add content length indicator
-	encodedData := make([]byte, len(encodedBytes)+1)
-	encodedData[0] = byte(len(encodedBytes))
-	for i, val := range encodedBytes {
-		encodedData[i+1] = val
+	binaryString := ""
+	for _, b := range encodedBytes {
+		binaryString = binaryString + DecimalToBinaryString(int(b), 8)
 	}
 
-	binaryData := make([]bool, 8*(len(encodedData)+1))
-	for i, val := range encodedData {
-		start := i*8 + 4
-		for j := range 8 {
-			if val&(1<<j) > 0 {
-				binaryData[start+7-j] = true
-			}
-		}
-	}
+	// add content length indicator
+	cci := DecimalToBinaryString(length, format.CCI)
 
 	// add mode indicator and separator
-	binaryData[1] = true
+	binaryString = format.Indicator + cci + binaryString + format.Separator
+	binaryString = binaryString + strings.Repeat("0", 8-len(binaryString)%8)
 
-	result := make([]byte, len(binaryData)/8+1)
+	result := make([]byte, len(binaryString)/8)
 	pos := 0
 
-	for i := range binaryData {
+	for i := range binaryString {
 		pos = i / 8
-		if binaryData[i] {
+		if binaryString[i] == '1' {
 			result[pos] += 1 << (7 - i%8)
 		}
 	}
