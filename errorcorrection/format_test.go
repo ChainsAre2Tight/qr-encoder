@@ -2,8 +2,8 @@ package errorcorrection_test
 
 import (
 	"fmt"
+	"qr-encoder/errorcorrection"
 	"testing"
-	"writer/errorcorrection"
 )
 
 func TestFormatErrorCorrectionGeneration(t *testing.T) {

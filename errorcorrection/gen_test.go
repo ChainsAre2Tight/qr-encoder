@@ -2,10 +2,10 @@ package errorcorrection_test
 
 import (
 	"fmt"
+	"qr-encoder/errorcorrection"
+	"qr-encoder/qr"
 	"reflect"
 	"testing"
-	"writer/errorcorrection"
-	"writer/qr"
 )
 
 func TestCodewordErrorCorrection(t *testing.T) {

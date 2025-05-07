@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"writer/errorcorrection"
-	"writer/format"
-	"writer/interfaces"
-	"writer/microqr"
-	"writer/output"
-	"writer/qr"
+	"qr-encoder/errorcorrection"
+	"qr-encoder/format"
+	"qr-encoder/interfaces"
+	"qr-encoder/microqr"
+	"qr-encoder/output"
+	"qr-encoder/qr"
 )
 
 var codes = map[string]interfaces.Code{

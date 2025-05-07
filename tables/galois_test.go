@@ -2,8 +2,8 @@ package tables_test
 
 import (
 	"fmt"
+	"qr-encoder/tables"
 	"testing"
-	"writer/tables"
 )
 
 func Test_Logarithm(t *testing.T) {

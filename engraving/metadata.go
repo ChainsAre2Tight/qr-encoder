@@ -1,7 +1,7 @@
 package engraving
 
 import (
-	"writer/types"
+	"qr-encoder/types"
 )
 
 var FinderPattern = types.Matrix{

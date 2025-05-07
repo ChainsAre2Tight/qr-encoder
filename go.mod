@@ -1,4 +1,4 @@
-module writer
+module qr-encoder
 
 go 1.24.0
 

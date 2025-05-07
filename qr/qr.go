@@ -2,7 +2,7 @@ package qr
 
 import (
 	"fmt"
-	"writer/types"
+	"qr-encoder/types"
 )
 
 type QR struct {

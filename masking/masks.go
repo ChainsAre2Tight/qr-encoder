@@ -1,6 +1,6 @@
 package masking
 
-import "writer/types"
+import "qr-encoder/types"
 
 var Masks = map[string]types.Mask{
 	"000": func(x, y int) bool { return (x+y)%2 == 0 },

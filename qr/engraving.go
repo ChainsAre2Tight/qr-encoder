@@ -2,10 +2,10 @@ package qr
 
 import (
 	"fmt"
-	"writer/engraving"
-	"writer/errorcorrection"
-	"writer/masking"
-	"writer/types"
+	"qr-encoder/engraving"
+	"qr-encoder/errorcorrection"
+	"qr-encoder/masking"
+	"qr-encoder/types"
 )
 
 type QRDataEngraver struct {
