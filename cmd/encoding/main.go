@@ -12,17 +12,21 @@ import (
 	"qr-encoder/internal/qr"
 )
 
+var erorrcorrectionpolynomials = map[string][]uint8{
+	"10": {0, 251, 67, 46, 61, 118, 70, 64, 94, 32, 45},
+}
+
 var codes = map[string]interfaces.Code{
 	"1-M": &qr.QR{
 		Size:                  21,
 		Capacity:              16,
-		ErrorCorrection:       []uint8{0, 251, 67, 46, 61, 118, 70, 64, 94, 32, 45},
+		ErrorCorrection:       erorrcorrectionpolynomials["10"],
 		ErrorCorrectionMarker: "00",
 	},
 	"M4-M": &microqr.MicroQR{
 		Size:                  17,
 		Capacity:              14,
-		ErrorCorrection:       []uint8{0, 251, 67, 46, 61, 118, 70, 64, 94, 32, 45},
+		ErrorCorrection:       erorrcorrectionpolynomials["10"],
 		ErrorCorrectionMarker: "110",
 	},
 }
@@ -36,14 +40,23 @@ func main() {
 		log.Fatal(fmt.Errorf("main: %s", err))
 	}
 
-	if l := len(os.Args); l != 2 {
-		log.Fatal("Unexpected number of arguments. Expected: 1, got: ", l-1)
+	printUsage := func() {
+		log.Fatalf("Usage: format [string] code [string] input [string]")
 	}
-	input := os.Args[1]
+
+	if l := len(os.Args); l != 4 {
+		log.Println("Unexpected number of arguments. Expected: 4, got: ", l-1)
+		printUsage()
+	}
+	input := os.Args[3]
 	log.Println("input is:", input)
 
-	format := "byte"
-	f := formats[format]
+	format := os.Args[1]
+	f, ok := formats[format]
+	if !ok {
+		log.Printf("Unsupported format: %s. List of supported formats: %v", format, formats)
+		printUsage()
+	}
 	log.Println("Selected format:", format)
 
 	data, err := f.Encode(input)
@@ -51,8 +64,12 @@ func main() {
 		fail(err)
 	}
 
-	code := "M4-M"
-	c := codes[code]
+	code := os.Args[2]
+	c, ok := codes[code]
+	if !ok {
+		log.Printf("Unsupported code: %s. List of supported codes: %v", code, codes)
+		printUsage()
+	}
 	log.Println("Selected code type:", code)
 	log.Println(c)
 
