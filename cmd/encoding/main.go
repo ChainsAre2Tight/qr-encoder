@@ -10,6 +10,7 @@ import (
 	"qr-encoder/internal/microqr"
 	"qr-encoder/internal/output"
 	"qr-encoder/internal/qr"
+	"qr-encoder/internal/types"
 )
 
 var erorrcorrectionpolynomials = map[string][]uint8{
@@ -23,6 +24,13 @@ var codes = map[string]interfaces.Code{
 		Capacity:              16,
 		ErrorCorrection:       erorrcorrectionpolynomials["10"],
 		ErrorCorrectionMarker: "00",
+		Formats: map[string]types.FormatData{
+			"byte": {
+				Indicator: "0100",
+				CCI:       8,
+				Separator: "0000",
+			},
+		},
 	},
 	// "M4-M": &microqr.MicroQR{
 	// 	Size:                  17,
@@ -35,6 +43,13 @@ var codes = map[string]interfaces.Code{
 		Capacity:              5,
 		ErrorCorrection:       erorrcorrectionpolynomials["5"],
 		ErrorCorrectionMarker: "001",
+		Formats: map[string]types.FormatData{
+			"alphanumeric": {
+				Indicator: "1",
+				CCI:       3,
+				Separator: "00000",
+			},
+		},
 	},
 }
 
@@ -67,11 +82,6 @@ func main() {
 	}
 	log.Println("Selected format:", format)
 
-	data, err := f.Encode(input)
-	if err != nil {
-		fail(err)
-	}
-
 	code := os.Args[2]
 	c, ok := codes[code]
 	if !ok {
@@ -81,6 +91,16 @@ func main() {
 	log.Println("Selected code type:", code)
 	log.Println(c)
 
+	ok, formatData := c.GetFormatData(format)
+	if !ok {
+		log.Printf("Unsupported format for this code: %s.", format)
+		printUsage()
+	}
+
+	data, err := f.Encode(input, *formatData)
+	if err != nil {
+		fail(err)
+	}
 	bitStream, err := PrepForEngraving(data, c)
 	if err != nil {
 		fail(err)

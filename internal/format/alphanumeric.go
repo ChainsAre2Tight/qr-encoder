@@ -2,6 +2,7 @@ package format
 
 import (
 	"fmt"
+	"qr-encoder/internal/types"
 	"strings"
 )
 
@@ -11,7 +12,7 @@ var alphanumeric = map[rune]int{
 	'0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, 'A': 10, 'B': 11, 'C': 12, 'D': 13, 'E': 14, 'F': 15, 'G': 16, 'H': 17, 'I': 18, 'J': 19, 'K': 20, 'L': 21, 'M': 22, 'N': 23, 'O': 24, 'P': 25, 'Q': 26, 'R': 27, 'S': 28, 'T': 29, 'U': 30, 'V': 31, 'W': 32, 'X': 33, 'Y': 34, 'Z': 35, ' ': 36, '$': 37, '%': 38, '*': 39, '+': 40, '-': 41, '.': 42, '/': 43, ':': 44,
 }
 
-func (f *Alphanumeric) Encode(data string) ([]byte, error) {
+func (f *Alphanumeric) Encode(data string, format types.FormatData) ([]byte, error) {
 	length := len(data)
 	var binaryString = ""
 
@@ -48,18 +49,11 @@ func (f *Alphanumeric) Encode(data string) ([]byte, error) {
 	}
 
 	fmt.Println("binary string", binaryString)
-
-	// cci := fmt.Sprintf("%0.9b", length)
-	cci := fmt.Sprintf("%0.3b", length)
-
+	cci := DecimalToBinaryString(length, format.CCI)
 	fmt.Println("cci", cci)
 
-	// binaryString = "0010" + cci + binaryString
-	binaryString = "1" + cci + binaryString + "00000"
-
+	binaryString = format.Indicator + cci + binaryString + format.Separator
 	binaryString = binaryString + strings.Repeat("0", 8-len(binaryString)%8)
-
-	// binaryString = "0100000000011000101011001100001100000000"
 
 	fmt.Println(binaryString)
 	fmt.Println(len(binaryString))

@@ -14,6 +14,7 @@ type MicroQR struct {
 	Capacity              int
 	ErrorCorrection       []uint8
 	ErrorCorrectionMarker string
+	Formats               map[string]types.FormatData
 }
 
 func (m *MicroQR) X() int {
@@ -101,4 +102,11 @@ func (m *MicroQR) InitMatrix() types.Matrix {
 		result[i] = make([]bool, m.Size)
 	}
 	return result
+}
+func (m *MicroQR) GetFormatData(format string) (bool, *types.FormatData) {
+	data, ok := m.Formats[format]
+	if !ok {
+		return false, nil
+	}
+	return true, &data
 }

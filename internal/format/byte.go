@@ -3,13 +3,14 @@ package format
 import (
 	"fmt"
 	"log"
+	"qr-encoder/internal/types"
 
 	"golang.org/x/text/encoding/charmap"
 )
 
 type ByteFormat struct{}
 
-func (f *ByteFormat) Encode(data string) ([]byte, error) {
+func (f *ByteFormat) Encode(data string, format types.FormatData) ([]byte, error) {
 	encoder := charmap.ISO8859_1.NewEncoder()
 	encodedBytes, err := encoder.Bytes([]byte(data))
 	if err != nil {

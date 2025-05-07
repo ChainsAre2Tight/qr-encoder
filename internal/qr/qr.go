@@ -10,6 +10,7 @@ type QR struct {
 	Capacity              int
 	ErrorCorrection       []uint8
 	ErrorCorrectionMarker string
+	Formats               map[string]types.FormatData
 }
 
 func (c *QR) InitMatrix() types.Matrix {
@@ -52,4 +53,12 @@ func (q *QR) WriteBitStream(bitStream []bool) (types.Matrix, error) {
 	formatEngraver.Write(matrix, mask)
 
 	return matrix, nil
+}
+
+func (q *QR) GetFormatData(format string) (bool, *types.FormatData) {
+	data, ok := q.Formats[format]
+	if !ok {
+		return false, nil
+	}
+	return true, &data
 }
