@@ -128,7 +128,9 @@ func main() {
 		fail(err)
 	}
 
-	output.MatrixToImage(matrix, true)
+	filename := fmt.Sprintf("%s-%s-%s.png", code, format, input)
+
+	output.MatrixToImage(matrix, true, filename)
 }
 
 func PrepForEngraving(data []byte, code interfaces.Code) ([]bool, error) {

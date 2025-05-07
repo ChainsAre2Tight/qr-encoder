@@ -11,7 +11,7 @@ import (
 	"github.com/nfnt/resize"
 )
 
-func MatrixToImage(matrix types.Matrix, include_border bool) {
+func MatrixToImage(matrix types.Matrix, include_border bool, name string) {
 	var upperLeft, lowerRight image.Point
 	if include_border {
 		upperLeft, lowerRight = image.Point{-4, -4}, image.Point{len(matrix) + 4, len(matrix[0]) + 4}
@@ -41,7 +41,7 @@ func MatrixToImage(matrix types.Matrix, include_border bool) {
 
 	newImage := resize.Resize(500, 500, img, resize.NearestNeighbor)
 
-	file, err := os.Create("output.png")
+	file, err := os.Create(name)
 
 	if err != nil {
 		log.Fatal(err)
