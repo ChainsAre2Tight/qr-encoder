@@ -12,10 +12,14 @@ import (
 type ByteFormat struct{}
 
 func (f *ByteFormat) Encode(data string, format types.FormatData) ([]byte, error) {
+	fail := func(err error) ([]byte, error) {
+		return nil, fmt.Errorf("ByteFormat.Encode: %s", err)
+	}
+
 	encoder := charmap.ISO8859_1.NewEncoder()
 	encodedBytes, err := encoder.Bytes([]byte(data))
 	if err != nil {
-		return nil, fmt.Errorf("ByteFormat.Encode: %s", err)
+		return fail(err)
 	}
 	length := len(encodedBytes)
 	log.Println("Encoded data is")
@@ -23,11 +27,18 @@ func (f *ByteFormat) Encode(data string, format types.FormatData) ([]byte, error
 
 	binaryString := ""
 	for _, b := range encodedBytes {
-		binaryString = binaryString + DecimalToBinaryString(int(b), 8)
+		add, err := DecimalToBinaryString(int(b), 8)
+		if err != nil {
+			return fail(err)
+		}
+		binaryString = binaryString + add
 	}
 
 	// add content length indicator
-	cci := DecimalToBinaryString(length, format.CCI)
+	cci, err := DecimalToBinaryString(length, format.CCI)
+	if err != nil {
+		return fail(err)
+	}
 
 	// add mode indicator and separator
 	log.Printf("Resulting string: %s %s %s %s", format.Indicator, cci, binaryString, format.Separator)

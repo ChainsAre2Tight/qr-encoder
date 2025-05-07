@@ -139,7 +139,10 @@ func PrepForEngraving(data []byte, code interfaces.Code) ([]bool, error) {
 	}
 	flag := true
 
-	if len(data) > code.GetCapacity() {
+	// if last byte is zero, it is probably a separator so we can delete it
+	if len(data) == code.GetCapacity()+1 && data[len(data)-1] == 0 {
+		data = data[:len(data)-1]
+	} else if len(data) > code.GetCapacity() {
 		return fail(fmt.Errorf("exceeded maximum code capacity (%d > %d)", len(data), code.GetCapacity()))
 	}
 

@@ -53,6 +53,7 @@ func (m *MicroQR) WriteBitStream(bitStream []bool) (types.Matrix, error) {
 
 	// TODO: evaluate masking patterns
 	maskedMatrixes := make(map[string]types.Matrix)
+	log.Println("Formats:")
 	for mask, mk := range masking.MicroQRMasks {
 
 		maskedMatrixes[mask] = masking.ApplyMask(matrix, mk)
@@ -77,7 +78,7 @@ func (m *MicroQR) WriteBitStream(bitStream []bool) (types.Matrix, error) {
 			errorcorrection.MicroQRMask,
 		)
 
-		log.Println(formatData)
+		log.Println(mask, formatData)
 
 		// place format data
 		for i, pos := range microQRformatPositions {

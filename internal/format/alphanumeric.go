@@ -14,6 +14,10 @@ var alphanumericTable = map[rune]int{
 }
 
 func (f *Alphanumeric) Encode(data string, format types.FormatData) ([]byte, error) {
+	fail := func(err error) ([]byte, error) {
+		return nil, fmt.Errorf("ByteFormat.Encode: %s", err)
+	}
+
 	length := len(data)
 	var binaryString = ""
 
@@ -31,12 +35,12 @@ func (f *Alphanumeric) Encode(data string, format types.FormatData) ([]byte, err
 		r1 := rune(data[2*i])
 		first, err := conv(r1)
 		if err != nil {
-			return nil, err
+			return fail(fmt.Errorf("i = %d, first: %s", i, err))
 		}
 		r2 := rune(data[2*i+1])
 		second, err := conv(r2)
 		if err != nil {
-			return nil, err
+			return fail(fmt.Errorf("i = %d, second: %s", i, err))
 		}
 		combo := first*45 + second
 		str := fmt.Sprintf("%0.11b", combo)
@@ -47,14 +51,17 @@ func (f *Alphanumeric) Encode(data string, format types.FormatData) ([]byte, err
 		r := rune(data[length-1])
 		first, err := conv(r)
 		if err != nil {
-			return nil, err
+			return fail(err)
 		}
 		str := fmt.Sprintf("%0.5b", first)
 		log.Printf("%s ---> %s", string(r), str)
 		binaryString = binaryString + str
 	}
 
-	cci := DecimalToBinaryString(length, format.CCI)
+	cci, err := DecimalToBinaryString(length, format.CCI)
+	if err != nil {
+		return fail(fmt.Errorf("cci: %s", err))
+	}
 	log.Println("cci", cci)
 
 	log.Printf("Resulting string: %s %s %s %s", format.Indicator, cci, binaryString, format.Separator)
