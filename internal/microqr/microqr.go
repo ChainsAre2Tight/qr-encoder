@@ -1,7 +1,6 @@
 package microqr
 
 import (
-	"fmt"
 	"log"
 	"qr-encoder/internal/engraving"
 	"qr-encoder/internal/errorcorrection"
@@ -34,9 +33,9 @@ func (m *MicroQR) GetErrorCorrectionPolynomial() []byte {
 }
 
 func (m *MicroQR) WriteBitStream(bitStream []bool) (types.Matrix, error) {
-	fail := func(err error) (types.Matrix, error) {
-		return nil, fmt.Errorf("microqr.WriteBitStream: %s", err)
-	}
+	// fail := func(err error) (types.Matrix, error) {
+	// 	return nil, fmt.Errorf("microqr.WriteBitStream: %s", err)
+	// }
 
 	matrix := m.InitMatrix()
 
@@ -53,40 +52,76 @@ func (m *MicroQR) WriteBitStream(bitStream []bool) (types.Matrix, error) {
 	)
 
 	// TODO: evaluate masking patterns
-	mask := "01"
-	mk, ok := masking.MicroQRMasks[mask]
-	if !ok {
-		return fail(fmt.Errorf("mask %s is not found", mask))
+	maskedMatrixes := make(map[string]types.Matrix)
+	for mask, mk := range masking.MicroQRMasks {
+
+		maskedMatrixes[mask] = masking.ApplyMask(matrix, mk)
+
+		// place finder pattern
+		engraving.WriteSubmatrix(maskedMatrixes[mask], engraving.FinderPatternBackground, 0, 0)
+		engraving.WriteSubmatrix(maskedMatrixes[mask], engraving.FinderPattern, 0, 0)
+
+		// place timing pattern
+		for i := 8; i < m.Size; i += 2 {
+			maskedMatrixes[mask][0][i] = true
+			maskedMatrixes[mask][0][i-1] = false
+			maskedMatrixes[mask][i][0] = true
+			maskedMatrixes[mask][i-1][0] = false
+		}
+
+		// generate format data
+		formatData := errorcorrection.ComputeFormatErrorCorrection(
+			m.ErrorCorrectionMarker,
+			mask,
+			errorcorrection.FormatBCHPolynomial,
+			errorcorrection.MicroQRMask,
+		)
+
+		log.Println(formatData)
+
+		// place format data
+		for i, pos := range microQRformatPositions {
+			maskedMatrixes[mask][pos[0]][pos[1]] = formatData[i]
+		}
 	}
 
-	result := masking.ApplyMask(matrix, mk)
-
-	// place finder pattern
-	engraving.WriteSubmatrix(result, engraving.FinderPatternBackground, 0, 0)
-	engraving.WriteSubmatrix(result, engraving.FinderPattern, 0, 0)
-
-	// place timing pattern
-	for i := 8; i < m.Size; i += 2 {
-		result[0][i] = true
-		result[0][i-1] = false
-		result[i][0] = true
-		result[i-1][0] = false
+	// evaluate masking patterns
+	log.Println("Evaluating masking patterns...")
+	maskScores := make(map[string]int)
+	for mask, matrix := range maskedMatrixes {
+		var sum1, sum2 int
+		l := len(matrix)
+		for i := 1; i < l; i++ {
+			if matrix[i][l-1] {
+				sum2++
+			}
+			if matrix[l-1][i] {
+				sum1++
+			}
+		}
+		var score int
+		if sum1 > sum2 {
+			score = sum2*16 + sum1
+		} else {
+			score = sum1*16 + sum1
+		}
+		maskScores[mask] = score
+		log.Printf("Mask: %s, score: %d", mask, score)
 	}
 
-	// generate format data
-	formatData := errorcorrection.ComputeFormatErrorCorrection(
-		m.ErrorCorrectionMarker,
-		mask,
-		errorcorrection.FormatBCHPolynomial,
-		errorcorrection.MicroQRMask,
-	)
+	var min int = 9999999
+	var resultMask string
+	var result types.Matrix
 
-	log.Println(formatData)
-
-	// place format data
-	for i, pos := range microQRformatPositions {
-		result[pos[0]][pos[1]] = formatData[i]
+	for mask, score := range maskScores {
+		if score < min {
+			min = score
+			result = maskedMatrixes[mask]
+			resultMask = mask
+		}
 	}
+
+	log.Printf("Selected mask: %s", resultMask)
 
 	return result, nil
 }
