@@ -109,13 +109,13 @@ func (m *MicroQR) WriteBitStream(bitStream []bool) (types.Matrix, error) {
 		log.Printf("Mask: %s, score: %d", mask, score)
 	}
 
-	var min int = 9999999
+	var max int = 0
 	var resultMask string
 	var result types.Matrix
 
 	for mask, score := range maskScores {
-		if score < min {
-			min = score
+		if score > max {
+			max = score
 			result = maskedMatrixes[mask]
 			resultMask = mask
 		}
